@@ -75,10 +75,20 @@ score, acc = loaded_model.evaluate(X_test, y_test, batch_size=32)
 y_test = y_test[:, 1]
 from sklearn.metrics import confusion_matrix, accuracy_score
 cm = confusion_matrix(y_test, y_pred)
+from sklearn.metrics import classification_report
+clf_report = classification_report(y_test, y_pred)
+
 
 df_test = pd.read_csv('test_tweets_anuFYb8.csv')
 tweets = df_test['tweet']
-
 tweets = tokenzer.texts_to_sequences(tweets.values)
-tweets = pad_sequences(tweets)
+tweets = pad_sequences(tweets, maxlen=100)
 predicted = loaded_model.predict(tweets)
+predicted = (predicted > 0.5)
+predicted = predicted[:, 1]
+predicted = predicted*1
+df_test['labels'] = predicted
+df_test.to_csv('test_predictions_tweets.csv', index="False")
+
+df_pred = pd.DataFrame(data=predicted, columns=['label'])
+df_pred.to_csv('test_predictions.csv', sep='\t', index='False')
