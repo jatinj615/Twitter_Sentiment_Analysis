@@ -13,9 +13,12 @@ y = pd.get_dummies(df['label']).values
 # preprocessing data Tokenize the words
 from keras.preprocessing.text import Tokenizer
 max_features = 10000
-tokenzer = Tokenizer(num_words=max_features, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', split=' ', lower=True, )
-tokenzer.fit_on_texts(X['tweet'].values)
-X = tokenzer.texts_to_sequences(X['tweet'].values)
+tokenizer = Tokenizer(num_words=max_features, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', split=' ', lower=True, )
+tokenizer.fit_on_texts(X['tweet'].values)
+
+import pickle as pkl
+pkl.dump(tokenizer, open('tokenizer.pkl', 'wb'))
+X = tokenizer.texts_to_sequences(X['tweet'].values)
 
 # add padding
 from keras.preprocessing.sequence import pad_sequences
@@ -91,7 +94,7 @@ clf_report = classification_report(y_test, y_pred)
 
 df_test = pd.read_csv('test_tweets_anuFYb8.csv')
 tweets = df_test['tweet']
-tweets = tokenzer.texts_to_sequences(tweets.values)
+tweets = tokenizer.texts_to_sequences(tweets.values)
 tweets = pad_sequences(tweets, maxlen=100)
 predicted = loaded_model.predict(tweets)
 predicted = (predicted > 0.5)
