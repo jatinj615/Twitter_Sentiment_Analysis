@@ -61,44 +61,36 @@ with tf.device('/gpu:0'):
     clf.fit(X_train, y_train, batch_size=32, epochs=10)
 
 
-from keras.models import model_from_json
-model_json = clf.to_json()
-with open("model.json", "w") as json_file:
-    json_file.write(model_json)
-# serialize weights to HDF5
-clf.save_weights("model.h5")
 
-# loading model
-json_file = open('model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
-# load weights into new model
-loaded_model.load_weights("model.h5")
-loaded_model.compile(optimizer= 'adam', loss='binary_crossentropy', metrics = ['accuracy']) # In case of more than two categories loss function equals 'categorical_crossentropy'
-
-y_pred = loaded_model.predict(X_test)
+# predicting on test data
+y_pred = clf.predict(X_test)
 y_pred = (y_pred > 0.5)
 y_pred = y_pred[:, 1]
-score, acc = loaded_model.evaluate(X_test, y_test, batch_size=32)
 
+#evaluating classifier
+score, acc = clf.evaluate(X_test, y_test, batch_size=32)
 y_test = y_test[:, 1]
+
+# import libraries for evaluation
 from sklearn.metrics import confusion_matrix, accuracy_score
 cm = confusion_matrix(y_test, y_pred)
 from sklearn.metrics import classification_report
 clf_report = classification_report(y_test, y_pred)
 
 
+# importing test tweets file
 df_test = pd.read_csv('test_tweets_anuFYb8.csv')
 tweets = df_test['tweet']
+
+# tokenize the words
 tweets = tokenzer.texts_to_sequences(tweets.values)
 tweets = pad_sequences(tweets, maxlen=100)
-predicted = loaded_model.predict(tweets)
+
+predicted = clf.predict(tweets)
 predicted = (predicted > 0.5)
 predicted = predicted[:, 1]
 predicted = predicted*1
-df_test['labels'] = predicted
-df_test.to_csv('test_predictions_tweets.csv', index="False")
 
+# creating csv file for predicted tweets
 df_pred = pd.DataFrame(data=predicted, columns=['label'])
 df_pred.to_csv('test_predictions.csv', sep='\t', index='False')
