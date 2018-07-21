@@ -13,7 +13,7 @@ y = pd.get_dummies(df['label']).values
 # preprocessing data Tokenize the words
 from keras.preprocessing.text import Tokenizer
 max_features = 10000
-tokenizer = Tokenizer(num_words=max_features, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', split=' ', lower=True, )
+tokenizer = Tokenizer(num_words=max_features, filters='!"#$%&()*+,-./:;<=>?@[\]^_`{|}~', split=' ', lower=True, char_level=False, oov_token=None)
 tokenizer.fit_on_texts(X['tweet'].values)
 
 import pickle as pkl
